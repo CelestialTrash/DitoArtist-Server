@@ -34,20 +34,22 @@ router.post("/signup", (req, res, next) => {
   }
 
   // This regular expression checks password for special characters and minimum length
-  const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
   if (!passwordRegex.test(password)) {
     res.status(400).json({
       message:
-        "Password must have at least 6 characters and contain at least one number, one lowercase and one uppercase letter.",
+        "Password must have at least 8 characters and contain at least one number, one symbol, one lowercase and one uppercase letter.",
     });
     return;
   }
 
   // Check the users collection if a user with the same email already exists
   User.findOne({ email })
-    .then((foundUser) => {
+    .then((user) => {
       // If the user with the same email already exists, send an error response
-      if (foundUser) {
+      if (user) {
         res.status(400).json({ message: "User already exists." });
         return;
       }
@@ -74,6 +76,9 @@ router.post("/signup", (req, res, next) => {
     .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.
 });
 
+const MAX_LOGIN_ATTEMPTS = 10;
+const LOCK_TIME = 5 * 60 * 1000; // 5 minutes (change to 2 hours for launch)
+
 // POST  /auth/login - Verifies email and password and returns a JWT
 router.post("/login", (req, res, next) => {
   const { email, password } = req.body;
@@ -86,20 +91,31 @@ router.post("/login", (req, res, next) => {
 
   // Check the users collection if a user with the same email exists
   User.findOne({ email })
-    .then((foundUser) => {
-      if (!foundUser) {
+    .then((user) => {
+      if (!user) {
         // If the user is not found, send an error response
         res.status(401).json({ message: "User not found." });
         return;
       }
 
+      // Check if the account is locked
+      if (user.isLocked()) {
+        return res.status(423).send("Account locked. Please try again later.");
+      }
+
       // Compare the provided password with the one saved in the database
-      const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
+      if(user.lockUntil!==null&&Date.now()>user.lockUntil){
+        user.failedLoginAttempts = 0
+        user.lockUntil = null
+      }// we are using this if to revert the failed login attempts to 0 once the locked period is done. Otherwise the user only gets 1 try to login instead of the min tries
+      const passwordCorrect = bcrypt.compareSync(password, user.password);
 
       if (passwordCorrect) {
         // Deconstruct the user object to omit the password
-        const { _id, email, name } = foundUser;
-
+        const { _id, email, name } = user;
+        user.failedLoginAttempts = 0; // Reset failed login attempts
+        user.lockUntil = null; // Unlock the account if it was locked
+        user.save();
         // Create an object that will be set as the token payload
         const payload = { _id, email, name };
 
@@ -110,9 +126,20 @@ router.post("/login", (req, res, next) => {
         });
 
         // Send the token as the response
-        res.status(200).json({ authToken: authToken });
+        return res.status(200).json({ authToken: authToken });
       } else {
         res.status(401).json({ message: "Unable to authenticate the user" });
+        user.failedLoginAttempts += 1;
+
+        if (user.failedLoginAttempts >= MAX_LOGIN_ATTEMPTS) {
+          user.lockUntil = Date.now() + LOCK_TIME;
+        }
+      }
+      user.save()
+      if (user.isLocked()) {
+        return res.status(423).send('Account locked due to too many failed login attempts. Please try again later.');
+      } else {
+        return res.status(401).send('Invalid username or password');
       }
     })
     .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.
