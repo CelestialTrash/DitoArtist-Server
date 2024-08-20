@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Release = require("../models/Release.model")
-const { isAuthenticated } = require("./middleware/jwt.middleware")
+const { isAuthenticated } = require("../middleware/jwt.middleware")
 
 
 router.post("/releases", isAuthenticated, (req, res) => {
