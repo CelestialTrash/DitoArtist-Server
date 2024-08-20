@@ -3,7 +3,7 @@ const router = express.Router();
 const Product = require("../models/Product.model")
 
 
-router.post("/product", (req, res) => {
+router.post("/products", (req, res) => {
     Product.create(req.body)
         .then((product) => {
             res.status(201).json(product)
@@ -14,7 +14,7 @@ router.post("/product", (req, res) => {
         })
 })
 
-router.get("/catalog", (req, res) => {
+router.get("/products", (req, res) => {
     Product.find()
         .then((products) => {
             res.status(200).json(products)
@@ -25,7 +25,7 @@ router.get("/catalog", (req, res) => {
         })
 })
 
-router.get("/catalog/:productId", (req, res) => {
+router.get("/products/:productId", (req, res) => {
     const { productId } = req.params
     Product.findById(productId)
         .then((product) => {
@@ -37,7 +37,7 @@ router.get("/catalog/:productId", (req, res) => {
         })
 })
 
-router.put("/catalog/:productId", (req, res) => {
+router.put("/products/:productId", (req, res) => {
     const { productId } = req.params
     const updatedProduct = req.body
     Product.findByIdAndUpdate(productId, updatedProduct, {new: true})
@@ -50,7 +50,7 @@ router.put("/catalog/:productId", (req, res) => {
         })
 })
 
-router.delete("/catalog/:productId", (req, res) => {
+router.delete("/products/:productId", (req, res) => {
     const { productId } = req.params
     Product.findByIdAndDelete(productId)
         .then(() => {

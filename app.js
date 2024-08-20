@@ -12,8 +12,8 @@ require("./config")(app);
 // Routes
 const releaseRoutes = require("./routes/release.routes");
 app.use("/api", isAuthenticated, releaseRoutes);
-const catalogRoutes = require("./routes/catalog.routes")
-app.use("/api", isAuthenticated, catalogRoutes)
+const productRoutes = require("./routes/product.routes")
+app.use("/api", isAuthenticated, productRoutes)
 
 const authRoutes = require("./routes/auth.routes");
 app.use("/auth", authRoutes);
