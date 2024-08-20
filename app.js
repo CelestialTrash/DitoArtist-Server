@@ -1,7 +1,6 @@
 require("dotenv").config();
 require("./db");
 const express = require("express");
-const { isAuthenticated } = require("./middleware/jwt.middleware")
 
 
 const app = express();
@@ -11,9 +10,9 @@ require("./config")(app);
 
 // Routes
 const releaseRoutes = require("./routes/release.routes");
-app.use("/api", isAuthenticated, releaseRoutes);
+app.use("/api", releaseRoutes);
 const productRoutes = require("./routes/product.routes")
-app.use("/api", isAuthenticated, productRoutes)
+app.use("/api", productRoutes)
 
 const authRoutes = require("./routes/auth.routes");
 app.use("/auth", authRoutes);

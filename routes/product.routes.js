@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const Product = require("../models/Product.model")
+const { isAuthenticated } = require("./middleware/jwt.middleware")
 
 
-router.post("/products", (req, res) => {
+router.post("/products", isAuthenticated, (req, res) => {
     Product.create(req.body)
         .then((product) => {
             res.status(201).json(product)
@@ -37,7 +38,7 @@ router.get("/products/:productId", (req, res) => {
         })
 })
 
-router.put("/products/:productId", (req, res) => {
+router.put("/products/:productId", isAuthenticated, (req, res) => {
     const { productId } = req.params
     const updatedProduct = req.body
     Product.findByIdAndUpdate(productId, updatedProduct, {new: true})
@@ -50,7 +51,7 @@ router.put("/products/:productId", (req, res) => {
         })
 })
 
-router.delete("/products/:productId", (req, res) => {
+router.delete("/products/:productId", isAuthenticated, (req, res) => {
     const { productId } = req.params
     Product.findByIdAndDelete(productId)
         .then(() => {

@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const Release = require("../models/Release.model")
+const { isAuthenticated } = require("./middleware/jwt.middleware")
 
 
-router.post("/releases", (req, res) => {
+router.post("/releases", isAuthenticated, (req, res) => {
     Release.create(req.body)
         .then((release) => {
             res.status(201).json(release)
@@ -37,7 +38,7 @@ router.get("/releases/:releaseId", (req, res) => {
         })
 })
 
-router.put("/releases/:releaseId", (req, res) => {
+router.put("/releases/:releaseId", isAuthenticated , (req, res) => {
     const { releaseId } = req.params
     const updatedRelease = req.body
     Release.findByIdAndUpdate(releaseId, updatedRelease, {new: true})
@@ -50,7 +51,7 @@ router.put("/releases/:releaseId", (req, res) => {
         })
 })
 
-router.delete("/releases/:releaseId", (req, res) => {
+router.delete("/releases/:releaseId", isAuthenticated, (req, res) => {
     const { releaseId } = req.params
     Release.findByIdAndDelete(releaseId)
         .then(() => {
