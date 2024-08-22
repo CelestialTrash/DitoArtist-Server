@@ -100,7 +100,7 @@ router.post("/login", (req, res, next) => {
 
       // Check if the account is locked
       if (user.isLocked()) {
-        return res.status(423).send("Account locked. Please try again later.");
+        return res.status(423).json({ message:"Account locked. Please try again later."});
       }
 
       // Compare the provided password with the one saved in the database
@@ -128,7 +128,7 @@ router.post("/login", (req, res, next) => {
         // Send the token as the response
         return res.status(200).json({ authToken: authToken });
       } else {
-        res.status(401).json({ message: "Unable to authenticate the user" });
+        res.status(401).json({ message: "Please try again, the email and password did not matched" });
         user.failedLoginAttempts += 1;
 
         if (user.failedLoginAttempts >= MAX_LOGIN_ATTEMPTS) {
@@ -137,9 +137,9 @@ router.post("/login", (req, res, next) => {
       }
       user.save()
       if (user.isLocked()) {
-        return res.status(423).send('Account locked due to too many failed login attempts. Please try again later.');
+        return res.status(423).json({ message:'Account locked due to too many failed login attempts. Please try again later.'});
       } else {
-        return res.status(401).send('Invalid username or password');
+        return res.status(401).json({ message:'Invalid username or password'});
       }
     })
     .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.
