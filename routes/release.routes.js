@@ -17,6 +17,8 @@ router.post("/releases", isAuthenticated, (req, res) => {
 
 router.get("/releases", (req, res) => {
     Release.find()
+        .sort({ releaseDate: -1 }) // Sort by releaseDate in descending order
+        .limit(1) // Limit the result to the most recent release
         .then((releases) => {
             res.status(200).json(releases)
         })
