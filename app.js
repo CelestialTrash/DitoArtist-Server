@@ -13,6 +13,8 @@ const releaseRoutes = require("./routes/release.routes");
 app.use("/api", releaseRoutes);
 const productRoutes = require("./routes/product.routes")
 app.use("/api", productRoutes)
+const bioRoutes = require("./routes/bio.routes");
+app.use("/api", bioRoutes)
 
 const authRoutes = require("./routes/auth.routes");
 app.use("/auth", authRoutes);
