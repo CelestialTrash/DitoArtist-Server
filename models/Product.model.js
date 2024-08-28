@@ -9,7 +9,7 @@ const productSchema = new Schema ({
     imageUrl: {type: [String]},
     size: {type: String},
     materials: {type: String},
-    linkToPlatform: {type: String, required:true}
+    linkToPlatform: {type: String }
 })
 
 const Product = mongoose.model("Product", productSchema)

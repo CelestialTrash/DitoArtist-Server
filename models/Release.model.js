@@ -6,7 +6,7 @@ const releaseSchema = new Schema ({
     releaseDate: {type: Date, default: Date.now()},
     producer: {type: String, required:true},
     imageUrl: {type: String},
-    linkToPlatform: {type: String, required:true}
+    linkToPlatform: {type: String }
 
 })
 
