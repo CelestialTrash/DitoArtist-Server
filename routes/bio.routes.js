@@ -25,3 +25,5 @@ router.put("/bio", isAuthenticated, (req, res) => {
             res.status(500).json({message: "Couldn't update the bio."})
         })
 })
+
+module.exports = router
