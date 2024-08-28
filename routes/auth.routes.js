@@ -77,7 +77,7 @@ router.post("/signup", (req, res, next) => {
 });
 
 const MAX_LOGIN_ATTEMPTS = 10;
-const LOCK_TIME = 5 * 60 * 1000; // 5 minutes (change to 2 hours for launch)
+const LOCK_TIME = 120 * 60 * 1000; // locking failed users for 2 hours
 
 // POST  /auth/login - Verifies email and password and returns a JWT
 router.post("/login", (req, res, next) => {
